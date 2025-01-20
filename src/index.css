@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans cursor-default dark:bg-slate-900 dark:text-white;
+  }
+  input, select, textarea {
+    @apply bg-white text-black;
+  }
+}
+
+@layer components {
+  .input {
+    @apply w-full px-4 py-3 rounded-lg border border-gray-300 focus-visible:outline-none focus:border-slate-400 focus:shadow-[2px_2px_0_#22d3ee,-2px_2px_0_#22d3ee,2px_-2px_0_#22d3ee,-2px_-2px_0_#22d3ee];
+  }
+  select.input {
+    @apply cursor-pointer;
+  }
+}
+
+@layer utilities {
+  .break-word {
+    word-break: break-word;
+  }
+}
