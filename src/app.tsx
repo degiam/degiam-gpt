@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'preact/hooks'
-import Gpt from './components/gpt'
+import ChatBot from './components/chatbot'
+import './app.css'
 
 export function App() {
   const [isStandalone, setIsStandalone] = useState(false)
@@ -65,7 +66,7 @@ export function App() {
   return (
     <main className={mainClass}>
       <h1 className='sr-only'>KieGPT by Degiam</h1>
-      <Gpt />
+      <ChatBot />
     </main>
   )
 }
