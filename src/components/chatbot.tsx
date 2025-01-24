@@ -83,8 +83,8 @@ const ChatBot = () => {
             {chatHistory.map((chat, index) => (
               <div key={index} class={chat.role === "user" ? "pl-6 md:pl-10 lg:pl-20" : ""}>
                 <div
-                  class={`mb-4 md:mb-6 lg:mb-8 [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 ${
-                    chat.role === "user" ? "w-fit max-w-4/5 ml-auto px-4 lg:px-6 py-2 lg:py-4 rounded-lg lg:rounded-xl bg-slate-100 dark:bg-slate-700" : ""
+                  class={`mb-8 [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 ${
+                    chat.role === "user" ? "w-fit max-w-4/5 ml-auto px-4 lg:px-6 py-2 lg:py-4 rounded-t-xl rounded-bl-xl bg-slate-100 dark:bg-slate-700" : ""
                   }`}
                   dangerouslySetInnerHTML={{ __html: String(marked.parse(chat.content)) }}
                 />
@@ -104,6 +104,7 @@ const ChatBot = () => {
                 ref={messageRef}
                 disabled={loadingSubmit}
                 value={message}
+                rows={1}
                 onInput={(e) => {
                   const target = e.target as HTMLTextAreaElement
                   setMessage(target.value)
@@ -115,7 +116,27 @@ const ChatBot = () => {
                   target.style.height = `${Math.min(target.scrollHeight, maxHeight) + 2}px`
                   target.scrollTop = target.scrollHeight
                 }}
-                rows={1}
+                onKeyDown={(e) => {
+                  const target = e.target as HTMLTextAreaElement
+
+                  if (e.key === 'Enter') {
+                    if (e.metaKey || e.ctrlKey || e.shiftKey) {
+                      e.preventDefault()
+                      setMessage((prev) => prev + '\n')
+
+                      setTimeout(() => {
+                        target.style.height = 'auto'
+                        const lineHeight = parseFloat(getComputedStyle(target).lineHeight || '1.5rem')
+                        const maxHeight = lineHeight * 3 + 2 * 12
+                        target.style.height = `${Math.min(target.scrollHeight, maxHeight) + 2}px`
+                        target.scrollTop = target.scrollHeight
+                      }, 0)
+                    } else {
+                      e.preventDefault()
+                      handleChat(e)
+                    }
+                  }
+                }}
                 placeholder="Tulis pesan disini"
                 class="overflow-auto scrollbar-none w-full max-h-[6rem] resize-none pl-4 pr-14 py-3 border border-slate-300 text-black rounded-lg focus:shadow-[2px_2px_0_#22d3ee,-2px_2px_0_#22d3ee,2px_-2px_0_#22d3ee,-2px_-2px_0_#22d3ee] focus-visible:outline-none focus:border-slate-400"
               />
