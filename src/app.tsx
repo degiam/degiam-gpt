@@ -55,12 +55,14 @@ export function App() {
   }, [])
 
   const mainClass = useMemo(() => {
+    const formClass = 'max-md:[&_.main-form]:bottom-10 [&_.main-form_.bg-1]:bottom-20 [&_.main-form_.bg-2]:h-20'
+    const formInIframe = 'max-md:[&_.main-form]:pb-12 [&_.main-form_.bg-1]:bottom-36 md:[&_.main-form_.bg-1]:bottom-24 [&_.main-form_.bg-2]:h-40 md:[&_.main-form_.bg-2]:h-20'
     if (isStandalone) {
       return isMobile
-        ? '[&_.main-layout]:max-md:pb-24'
-        : '[&_.main-layout]:md:pt-24'
+        ? `${formInIframe} max-md:[&_.main-layout]:pb-24`
+        : `${formInIframe} md:[&_.main-layout]:pt-24`
     }
-    return ''
+    return formClass
   }, [isStandalone, isMobile])
 
   return (

@@ -1,38 +1,56 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap')
+layer(base);
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@plugin '@tailwindcss/typography';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
 
 @layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
   body {
     @apply font-sans cursor-default dark:bg-slate-900 dark:text-white;
   }
   input, select, textarea {
     @apply bg-white text-black;
   }
-}
-
-@layer components {
-  .input {
-    @apply w-full px-4 py-3 rounded-lg border border-gray-300 focus-visible:outline-none focus:border-slate-400 focus:shadow-[2px_2px_0_#22d3ee,-2px_2px_0_#22d3ee,2px_-2px_0_#22d3ee,-2px_-2px_0_#22d3ee];
-  }
-  select.input {
+  button {
     @apply cursor-pointer;
   }
-
-  .scrollbar-none {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-    overflow-y: scroll;
+  img {
+    @apply text-transparent;
   }
-  .scrollbar-none::-webkit-scrollbar {
+}
+
+@utility input {
+  @apply w-full px-4 py-3 rounded-lg border border-gray-300 focus-visible:outline-hidden focus:border-slate-400 focus:shadow-[2px_2px_0_#22d3ee,-2px_2px_0_#22d3ee,2px_-2px_0_#22d3ee,-2px_-2px_0_#22d3ee];
+  &select {
+    @apply cursor-pointer;
+  }
+}
+
+@utility scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overflow-y: scroll;
+  &::-webkit-scrollbar {
     display: none;
   }
 }
 
-@layer utilities {
-  .break-word {
-    word-break: break-word;
-  }
+@utility break-word {
+  word-break: break-word;
 }

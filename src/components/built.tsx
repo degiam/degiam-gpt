@@ -1,6 +1,6 @@
 const Built = () => {
   return (
-    <section class="text-xs flex items-center justify-center flex-col gap-2 mt-14">
+    <section class="text-xs flex items-center justify-center flex-col gap-2">
       <div class="text-slate-400/60 dark:text-slate-600 flex items-center justify-center gap-1">
         <span>Built on</span>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="#fff">
