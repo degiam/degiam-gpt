@@ -70,7 +70,7 @@ const ChatBot = () => {
 
     setTimeout(() => {
       window.scrollTo({
-        top: document.body.scrollHeight,
+        top: window.scrollY + 150,
         behavior: "smooth",
       });
     }, 0);
