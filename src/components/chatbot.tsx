@@ -70,10 +70,10 @@ const ChatBot = () => {
 
     setTimeout(() => {
       window.scrollTo({
-        top: window.scrollY + 150,
+        top: document.body.scrollHeight,
         behavior: "smooth",
       });
-    }, 0);
+    }, 500);
 
     try {
       const newMessage = { role: 'user', content: message }
