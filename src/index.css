@@ -36,7 +36,7 @@ layer(base);
 }
 
 @utility input {
-  @apply w-full px-4 py-3 rounded-lg border border-gray-300 focus-visible:outline-hidden focus:border-slate-400 focus:shadow-[2px_2px_0_#22d3ee,-2px_2px_0_#22d3ee,2px_-2px_0_#22d3ee,-2px_-2px_0_#22d3ee];
+  @apply w-full px-4 py-3 rounded-lg border border-gray-300 focus-visible:outline-hidden focus:border-slate-400 focus:shadow-[2px_2px_0_#22d3ee,-2px_2px_0_#22d3ee,2px_-2px_0_#22d3ee,-2px_-2px_0_#22d3ee] placeholder-slate-400 disabled:bg-slate-100 disabled:placeholder-slate-300;
   &select {
     @apply cursor-pointer;
   }
