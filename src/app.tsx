@@ -55,8 +55,8 @@ export function App() {
   }, [])
 
   const mainClass = useMemo(() => {
-    const formClass = 'max-md:[&_.main-form]:bottom-10 [&_.main-form_.bg-1]:bottom-20 [&_.main-form_.bg-2]:h-20'
-    const formInIframe = 'max-md:[&_.main-form]:pb-12 [&_.main-form_.bg-1]:bottom-36 md:[&_.main-form_.bg-1]:bottom-24 [&_.main-form_.bg-2]:h-40 md:[&_.main-form_.bg-2]:h-20'
+    const formClass = 'max-md:[&_.main-form]:bottom-10 [&_.main-form_.bg-bottom]:h-20'
+    const formInIframe = 'max-md:[&_.main-form]:pb-12 [&_.main-form_.bg-bottom]:h-40 md:[&_.main-form_.bg-bottom]:h-20'
     if (isStandalone) {
       return isMobile
         ? `${formInIframe} max-md:[&_.main-layout]:pb-24`

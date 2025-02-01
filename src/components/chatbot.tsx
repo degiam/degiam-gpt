@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'preact/hooks'
+import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
 import { marked } from 'marked'
 import Brand from './brand'
 import Built from './built'
@@ -9,42 +9,12 @@ const ChatBot = () => {
   const [message, setMessage] = useState('')
   const [loadingSubmit, setLoadingSubmit] = useState(false)
   const [chatHistory, setChatHistory] = useState<{ role: string; content: string }[]>([])
-
-  const dropdownRef = useRef<HTMLDivElement>(null)
-  const [selectedCategory, setSelectedCategory] = useState('Pilih Kategori')
   const [showCategories, setShowCategories] = useState(false)
-
-  const categories = [
-    'Kesehatan',
-    'Finansial',
-    'Asmara',
-    'Hobi',
-    'Rumah Tangga'
-  ]
-
-  const toggleDropdownCategories = () => {
-    setShowCategories(!showCategories)
-  }
-
-  const handleSelect = (category: string) => {
-    setSelectedCategory(category)
-    setShowCategories(false)
-  }
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowCategories(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
-  
+  const [selectedCategory, setSelectedCategory] = useState('Pilih Ruangan')
   const messageRef = useRef<HTMLTextAreaElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  const storage: string = 'degiam-gpt'
 
   const models: any = [
     'gpt-4-turbo',
@@ -56,6 +26,36 @@ const ChatBot = () => {
     'claude-3-sonnet',
     'blackbox',
   ]
+
+  const categories: string[] = [
+    'Kesehatan',
+    'Finansial',
+    'Asmara',
+    'Hobi',
+    'Rumah Tangga'
+  ]
+
+  const toggleDropdownCategories = () => {
+    setShowCategories(!showCategories)
+  }
+
+  const handleDropdownSelect = (category: string) => {
+    setSelectedCategory(category)
+    setShowCategories(false)
+  }
+
+  const handleDropdownCloseOutside = useCallback((event: MouseEvent) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      setShowCategories(false)
+    }
+  }, [])
+  
+  useEffect(() => {
+    document.addEventListener('mousedown', handleDropdownCloseOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleDropdownCloseOutside)
+    }
+  }, [handleDropdownCloseOutside])
 
   const handleInput = (e: Event) => {
     const target = e.target as HTMLTextAreaElement
@@ -127,22 +127,45 @@ const ChatBot = () => {
           })
 
           setChatHistory(result.data.history)
+
+          if (selectedCategory !== 'Pilih Ruangan') {
+            const storedData = localStorage.getItem(storage)
+            const chatData = storedData ? JSON.parse(storedData) : {}
+            chatData[selectedCategory] = result.data.history
+            localStorage.setItem(storage, JSON.stringify(chatData))
+          }
+
           success = true
         } catch (error: any) {
-          console.log(`Gagal menggunakan model ${models[attempt]}: ${error.message || 'Tidak diketahui'}`)
+          console.error(`Gagal menggunakan model ${models[attempt]}: ${error.message || 'Tidak diketahui'}`)
           attempt++
         }
       }
 
       if (!success) {
-        alert('Semua model gagal. Mohon coba lagi nanti.')
+        setChatHistory([
+          ...sentMessage,
+          { role: 'assistant', content: 'Maaf, terjadi kesalahan. Silakan coba lagi nanti.' },
+        ]);
       }
     } catch (error: any) {
-      alert(`Terjadi kesalahan: ${error.message || 'Tidak diketahui'}`)
+      const errorMessage = `Terjadi kesalahan: ${error.message || 'Tidak diketahui'}`
+      alert(errorMessage)
+      console.error(errorMessage)
     } finally {
       setLoadingSubmit(false)
     }
   }
+
+  useEffect(() => {
+    const storedData = localStorage.getItem(storage)
+    if (storedData) {
+      const parsedData = JSON.parse(storedData)
+      setChatHistory(parsedData[selectedCategory] || [])
+    } else {
+      setChatHistory([])
+    }
+  }, [selectedCategory])
 
   return (
     <div class="flex justify-center items-center min-h-screen p-6 main-layout">
@@ -154,7 +177,7 @@ const ChatBot = () => {
         </div>
 
         <div>
-          <div class="prose dark:prose-invert pb-6">
+          <div class="prose dark:prose-invert pb-16">
             {chatHistory.map((chat, index) => (
               <div key={index} class={chat.role === "user" ? "pl-6 md:pl-10 lg:pl-20" : ""}>
                 <div
@@ -174,12 +197,12 @@ const ChatBot = () => {
           }
 
           <div class="fixed bottom-16 w-[calc(100%-3rem)] max-w-lg mx-auto main-form">
-            <form onSubmit={handleSubmit} class="relative z-1">
-              <fieldset class="flex justify-between gap-4 mb-2">
+            <form onSubmit={handleSubmit} class="relative z-1 bg-white dark:bg-slate-900">
+              <fieldset class={`flex justify-between gap-4 mb-3 ${loadingSubmit ? 'pointer-events-none' : ''}`}>
                 <div class="relative inline-block text-left" ref={dropdownRef}>
                   <button
                     onClick={toggleDropdownCategories}
-                    class="text-sm flex items-center justify-between gap-1 w-fit"
+                    class="text-sm flex items-center justify-between gap-1 w-fit text-slate-400 dark:text-slate-500"
                   >
                     <span class="w-full">{selectedCategory}</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 w-4 h-auto mt-0.5">
@@ -188,13 +211,13 @@ const ChatBot = () => {
                     </svg>
                   </button>
                   {showCategories && (
-                    <div class="absolute bottom-8 w-40 bg-white border rounded-lg shadow-xl">
+                    <div class="absolute bottom-8 w-40 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl">
                       <ul class="py-1 text-sm">
                         {categories.map((category) => (
                           <li
                             key={category}
-                            class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex justify-between items-center"
-                            onClick={() => handleSelect(category)}
+                            class="px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-900/50 cursor-pointer flex justify-between items-center"
+                            onClick={() => handleDropdownSelect(category)}
                           >
                             {category}
                             {selectedCategory === category && (
@@ -243,8 +266,8 @@ const ChatBot = () => {
                 </button>
               </fieldset>
             </form>
-            <div class="bg-1 fixed left-0 w-full h-20 bg-gradient-to-t from-white via-white to-transparent dark:from-slate-900 dark:via-slate-900"></div>
-            <div class="bg-2 fixed bottom-0 left-0 w-full bg-white dark:bg-slate-900"></div>
+            <div class="absolute -top-10 left-0 w-full h-10 bg-gradient-to-t from-white to-transparent dark:from-slate-900"></div>
+            <div class="bg-bottom fixed bottom-0 left-0 w-full bg-white dark:bg-slate-900"></div>
           </div>
         </div>
 
