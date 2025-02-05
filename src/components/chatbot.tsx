@@ -35,28 +35,54 @@ const ChatBot = () => {
 
   const [message, setMessage] = useState('')
   const [loadingSubmit, setLoadingSubmit] = useState(false)
-  const [isPopupVisible, setIsPopupVisible] = useState(false)
+  const [popupReset, setPopupReset] = useState(false)
+  const [popupResetAll, setPopupResetAll] = useState(false)
   const [chatHistory, setChatHistory] = useState<{ role: string; content: string }[]>([])
   const [showCategories, setShowCategories] = useState(false)
+  const [showResets, setShowResets] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState(() => {
     const storedData = localStorage.getItem(storage)
     return storedData ? JSON.parse(storedData).selectedCategory || defaultCategory : defaultCategory
   })
   const messageRef = useRef<HTMLTextAreaElement>(null)
-  const dropdownRef = useRef<HTMLDivElement>(null)
+  const dropdownCategoryRef = useRef<HTMLDivElement>(null)
+  const dropdownResetRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
-    setTimeout(() => {
-      window.scrollTo({
-        top: document.documentElement.scrollHeight || document.body.scrollHeight,
-        behavior: 'smooth',
-      })
-    }, 10)
+    const body = document.querySelector('#app')?.closest('body')
+    if (body) {
+      setTimeout(() => {
+        window.scrollTo({
+          top: body.scrollHeight,
+          behavior: 'smooth',
+        })
+      }, 10)
+    }
   }
 
   const toggleDropdownCategories = useCallback(() => {
-    setShowCategories(prev => !prev);
-  }, []);
+    setShowCategories(prev => !prev)
+  }, [])
+
+  const toggleDropdownResets = useCallback(() => {
+    setShowResets(prev => !prev)
+  }, [])
+
+  const handleDropdownCloseOutside = useCallback((event: MouseEvent) => {
+    if (dropdownCategoryRef.current && !dropdownCategoryRef.current.contains(event.target as Node)) {
+      setShowCategories(false)
+    }
+    if (dropdownResetRef.current && !dropdownResetRef.current.contains(event.target as Node)) {
+      setShowResets(false)
+    }
+  }, [])
+  
+  useEffect(() => {
+    document.addEventListener('mousedown', handleDropdownCloseOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleDropdownCloseOutside)
+    }
+  }, [handleDropdownCloseOutside])
 
   const handleDropdownSelect = (category: string) => {
     setSelectedCategory(category)
@@ -70,19 +96,6 @@ const ChatBot = () => {
     setShowCategories(false)
     scrollToBottom()
   }
-
-  const handleDropdownCloseOutside = useCallback((event: MouseEvent) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-      setShowCategories(false)
-    }
-  }, [])
-  
-  useEffect(() => {
-    document.addEventListener('mousedown', handleDropdownCloseOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleDropdownCloseOutside)
-    }
-  }, [handleDropdownCloseOutside])
 
   const handleInput = (e: Event) => {
     const target = e.target as HTMLTextAreaElement
@@ -127,7 +140,14 @@ const ChatBot = () => {
     }
 
     setChatHistory([])
-    setIsPopupVisible(false)
+    setPopupReset(false)
+  }
+
+  const handleEmptyChat = () => {
+    localStorage.removeItem(storage)
+    setSelectedCategory(defaultCategory)
+    setChatHistory([])
+    setPopupResetAll(false)
   }
 
   const handleSubmit = async (e: Event) => {
@@ -142,11 +162,14 @@ const ChatBot = () => {
     }
 
     setTimeout(() => {
-      window.scrollTo({
-        // top: window.scrollY + 150,
-        top: document.documentElement.scrollHeight || document.body.scrollHeight,
-        behavior: 'smooth',
-      })
+      const body = document.querySelector('#app')?.closest('body')
+      if (body) {
+        window.scrollTo({
+          // top: window.scrollY + 150,
+          top: body.scrollHeight,
+          behavior: 'smooth',
+        })
+      }
     }, 500)
 
     try {
@@ -243,7 +266,7 @@ const ChatBot = () => {
           <div class="fixed bottom-16 w-[calc(100%-3rem)] max-w-lg mx-auto main-form">
             <form onSubmit={handleSubmit} class="relative z-1 bg-white dark:bg-slate-900">
               <fieldset class={`flex justify-between gap-4 mb-3 ${loadingSubmit ? 'pointer-events-none' : ''}`}>
-                <div class="relative inline-block text-left" ref={dropdownRef}>
+                <div class="relative inline-block text-left" ref={dropdownCategoryRef}>
                   <button
                     onClick={toggleDropdownCategories}
                     class="text-sm flex items-center justify-between gap-1 w-fit transition text-slate-400 hover:text-black focus:text-black dark:text-slate-500 dark:hover:text-white dark:focus:text-white"
@@ -277,12 +300,32 @@ const ChatBot = () => {
                   )}
                 </div>
                 {(selectedCategory !== defaultCategory && selectedCategory !== generalCategory && chatHistory.length > 0) &&
-                  <button
-                    onClick={() => setIsPopupVisible(true)}
-                    class="text-sm flex items-center justify-between gap-1 w-fit transition text-slate-400 hover:text-rose-400 focus:text-rose-400 dark:text-slate-500 dark:hover:text-rose-400 dark:focus:text-rose-400"
-                  >
-                    Reset
-                  </button>
+                  <div class="relative inline-block text-left" ref={dropdownResetRef}>
+                    <button
+                      onClick={toggleDropdownResets}
+                      class="text-sm flex items-center justify-between gap-1 w-fit transition text-slate-400 hover:text-rose-400 focus:text-rose-400 dark:text-slate-500 dark:hover:text-rose-400 dark:focus:text-rose-400"
+                    >
+                      <span class="w-full">Reset</span>
+                    </button>
+                    {showResets && (
+                      <div class="absolute bottom-8 right-0 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl">
+                        <ul class="py-1 text-sm">
+                          <li
+                            class="px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-900/50 cursor-pointer flex justify-between items-center"
+                            onClick={() => setPopupReset(true)}
+                          >
+                            Hapus Chat Ini Saja
+                          </li>
+                          <li
+                            class="px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-900/50 cursor-pointer flex justify-between items-center"
+                            onClick={() => setPopupResetAll(true)}
+                          >
+                            Bersihkan Riwayat Chat Semua Kategori
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 }
               </fieldset>
 
@@ -323,11 +366,11 @@ const ChatBot = () => {
           </div>
         </div>
 
-        {isPopupVisible &&
+        {popupReset &&
           <div class="fixed inset-0 flex justify-center items-center bg-black/80 z-50 p-3">
             <div class="flex flex-col gap-4 bg-white dark:bg-slate-900 p-8 rounded-xl shadow-xl w-full max-w-md">
-              <h3 class="text-2xl font-bold text-center">Bersihkan Riwayat Chat</h3>
-              <p class="text-center mb-4 text-slate-500 dark:text-slate-400">Kamu yakin ingin menghapus semua chat pada kategori <b>{selectedCategory}</b> ini?</p>
+              <h3 class="text-2xl font-bold text-center">Hapus Riwayat Chat</h3>
+              <p class="text-center mb-4 text-slate-500 dark:text-slate-400">Kamu yakin ingin menghapus semua chat pada kategori <b>{selectedCategory}</b>?</p>
               <div class="flex items-center justify-center gap-4 max-lg:flex-col">
                 <button
                   type="button"
@@ -338,7 +381,32 @@ const ChatBot = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setIsPopupVisible(false)}
+                  onClick={() => setPopupReset(false)}
+                  class="lg:order-1 w-full px-4 py-3 rounded-lg transition text-slate-400 dark:text-slate-500 hover:text-slate-500 dark:hover:text-slate-400 bg-slate-200 hover:bg-slate-100 dark:bg-slate-800/50 dark:hover:bg-slate-800"
+                >
+                  Batal
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+
+        {popupResetAll &&
+          <div class="fixed inset-0 flex justify-center items-center bg-black/80 z-50 p-3">
+            <div class="flex flex-col gap-4 bg-white dark:bg-slate-900 p-8 rounded-xl shadow-xl w-full max-w-md">
+              <h3 class="text-2xl font-bold text-center">Bersihkan Semua Chat</h3>
+              <p class="text-center mb-4 text-slate-500 dark:text-slate-400">Kamu yakin ingin menghapus semua chat pada semua kategori?</p>
+              <div class="flex items-center justify-center gap-4 max-lg:flex-col">
+                <button
+                  type="button"
+                  onClick={handleEmptyChat}
+                  class="lg:order-2 w-full px-4 py-3 rounded-lg transition font-bold relative flex items-center justify-center gap-2 text-white border border-rose-600 hover:border-rose-500 bg-rose-600 hover:bg-rose-500"
+                >
+                  Bersihkan Chat
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPopupResetAll(false)}
                   class="lg:order-1 w-full px-4 py-3 rounded-lg transition text-slate-400 dark:text-slate-500 hover:text-slate-500 dark:hover:text-slate-400 bg-slate-200 hover:bg-slate-100 dark:bg-slate-800/50 dark:hover:bg-slate-800"
                 >
                   Batal
