@@ -49,14 +49,14 @@ const ChatBot = () => {
   const dropdownResetRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
-    const body = document.querySelector('#app')?.closest('body')
-    if (body) {
-      setTimeout(() => {
-        window.scrollTo({
-          top: body.scrollHeight,
-          behavior: 'smooth',
-        })
-      }, 10)
+    const app = document.querySelector('#app')
+    const html = app?.closest('html')
+    const body = app?.closest('body')
+    if (html && body) {
+      window.scrollTo({
+        top: body.clientHeight - html.clientHeight,
+        behavior: 'smooth',
+      })
     }
   }
 
@@ -94,7 +94,7 @@ const ChatBot = () => {
     localStorage.setItem(storage, JSON.stringify(chatData))
 
     setShowCategories(false)
-    scrollToBottom()
+    setTimeout(() => scrollToBottom(), 10)
   }
 
   const handleInput = (e: Event) => {
@@ -161,16 +161,7 @@ const ChatBot = () => {
       messageRef.current.style.height = 'auto'
     }
 
-    setTimeout(() => {
-      const body = document.querySelector('#app')?.closest('body')
-      if (body) {
-        window.scrollTo({
-          // top: window.scrollY + 150,
-          top: body.scrollHeight,
-          behavior: 'smooth',
-        })
-      }
-    }, 500)
+    setTimeout(() => scrollToBottom(), 500)
 
     try {
       const newMessage = { role: 'user', content: message }
@@ -231,7 +222,7 @@ const ChatBot = () => {
   }, [selectedCategory])
 
   useEffect(() => {
-    scrollToBottom()
+    setTimeout(() => scrollToBottom(), 10)
   },[])
 
   return (
@@ -263,8 +254,8 @@ const ChatBot = () => {
             </p>
           }
 
-          <div class="fixed bottom-16 w-[calc(100%-3rem)] max-w-lg mx-auto main-form">
-            <form onSubmit={handleSubmit} class="relative z-1 bg-white dark:bg-slate-900">
+          <div class="fixed left-0 right-0 bottom-16 w-full max-w-lg mx-auto main-form">
+            <form onSubmit={handleSubmit} class="relative z-1 bg-white dark:bg-slate-900 px-6">
               <fieldset class={`flex justify-between gap-4 mb-3 ${loadingSubmit ? 'pointer-events-none' : ''}`}>
                 <div class="relative inline-block text-left" ref={dropdownCategoryRef}>
                   <button
