@@ -3,7 +3,7 @@ import ChatBot from './components/chatbot'
 import './app.css'
 
 export function App() {
-  const [isStandalone, setIsStandalone] = useState(false)
+  const [isChildren, setIsChildren] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
   const updateTheme = useCallback((isDarkMode: boolean) => {
@@ -42,7 +42,7 @@ export function App() {
   useEffect(() => {
     const handleScreenSizeMessage = (event: MessageEvent) => {
       if (event.data?.type === 'screen-size') {
-        setIsStandalone(true)
+        setIsChildren(true)
         setIsMobile(event.data.isMobile)
       }
     }
@@ -57,17 +57,19 @@ export function App() {
   const mainClass = useMemo(() => {
     const formClass = 'max-md:[&_.main-form]:bottom-10 [&_.main-form_.bg-bottom]:h-20'
     const formInIframe = 'max-md:[&_.main-form]:pb-12 [&_.main-form_.bg-bottom]:h-40 md:[&_.main-form_.bg-bottom]:h-20'
-    if (isStandalone) {
+    if (isChildren) {
       return isMobile
         ? `${formInIframe} max-md:[&_.main-layout]:pb-24`
         : `${formInIframe} md:[&_.main-layout]:pt-24`
     }
     return formClass
-  }, [isStandalone, isMobile])
+  }, [isChildren, isMobile])
 
   return (
-    <main className={mainClass}>
-      <h1 className='sr-only'>KieGPT by Degiam</h1>
+    <main class={mainClass}>
+      {!isChildren &&
+        <h1 class="sr-only">KieGPT by Degiam</h1>
+      }
       <ChatBot />
     </main>
   )
