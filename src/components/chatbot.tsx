@@ -1,229 +1,229 @@
-import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
-import { marked } from 'marked'
+// import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
+// import { marked } from 'marked'
 import Brand from './brand'
 import Built from './built'
 import Popover from './popover'
-import { chatWithAi } from '../api/zest'
+// import { chatWithAi } from '../api/zest'
 
 const ChatBot = () => {
-  const defaultCategory: string = 'Pilih Ruang Curhat'
-  const generalCategory: string = 'Umum'
+  // const defaultCategory: string = 'Pilih Ruang Curhat'
+  // const generalCategory: string = 'Umum'
 
-  const storage: string = 'degiam-gpt'
+  // const storage: string = 'degiam-gpt'
 
-  const models: any = [
-    'gpt-4-turbo',
-    'gpt-4o',
-    'gpt-4o-mini',
-    'grok-beta',
-    'grok-2',
-    'grok-2-mini',
-    'claude-3-sonnet',
-    'blackbox',
-  ]
+  // const models: any = [
+  //   'gpt-4-turbo',
+  //   'gpt-4o',
+  //   'gpt-4o-mini',
+  //   'grok-beta',
+  //   'grok-2',
+  //   'grok-2-mini',
+  //   'claude-3-sonnet',
+  //   'blackbox',
+  // ]
 
-  const categories: string[] = [
-    generalCategory,
-    'Kesehatan',
-    'Finansial',
-    'Hobi',
-    'Asmara',
-    'Keluarga',
-    'Karir',
-    'Pendidikan'
-  ]
+  // const categories: string[] = [
+  //   generalCategory,
+  //   'Kesehatan',
+  //   'Finansial',
+  //   'Hobi',
+  //   'Asmara',
+  //   'Keluarga',
+  //   'Karir',
+  //   'Pendidikan'
+  // ]
 
-  const [message, setMessage] = useState('')
-  const [loadingSubmit, setLoadingSubmit] = useState(false)
-  const [popupReset, setPopupReset] = useState(false)
-  const [popupResetAll, setPopupResetAll] = useState(false)
-  const [chatHistory, setChatHistory] = useState<{ role: string; content: string }[]>([])
-  const [showCategories, setShowCategories] = useState(false)
-  const [showResets, setShowResets] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState(() => {
-    const storedData = localStorage.getItem(storage)
-    return storedData ? JSON.parse(storedData).selectedCategory || defaultCategory : defaultCategory
-  })
-  const messageRef = useRef<HTMLTextAreaElement>(null)
-  const dropdownCategoryRef = useRef<HTMLDivElement>(null)
-  const dropdownResetRef = useRef<HTMLDivElement>(null)
+  // const [message, setMessage] = useState('')
+  // const [loadingSubmit, setLoadingSubmit] = useState(false)
+  // const [popupReset, setPopupReset] = useState(false)
+  // const [popupResetAll, setPopupResetAll] = useState(false)
+  // const [chatHistory, setChatHistory] = useState<{ role: string; content: string }[]>([])
+  // const [showCategories, setShowCategories] = useState(false)
+  // const [showResets, setShowResets] = useState(false)
+  // const [selectedCategory, setSelectedCategory] = useState(() => {
+  //   const storedData = localStorage.getItem(storage)
+  //   return storedData ? JSON.parse(storedData).selectedCategory || defaultCategory : defaultCategory
+  // })
+  // const messageRef = useRef<HTMLTextAreaElement>(null)
+  // const dropdownCategoryRef = useRef<HTMLDivElement>(null)
+  // const dropdownResetRef = useRef<HTMLDivElement>(null)
 
-  const scrollToBottom = () => {
-    const app = document.querySelector('#app')
-    const html = app?.closest('html')
-    const body = app?.closest('body')
-    if (html && body) {
-      window.scrollTo({
-        top: body.clientHeight - html.clientHeight,
-        behavior: 'smooth',
-      })
-    }
-  }
+  // const scrollToBottom = () => {
+  //   const app = document.querySelector('#app')
+  //   const html = app?.closest('html')
+  //   const body = app?.closest('body')
+  //   if (html && body) {
+  //     window.scrollTo({
+  //       top: body.clientHeight - html.clientHeight,
+  //       behavior: 'smooth',
+  //     })
+  //   }
+  // }
 
-  const toggleDropdownCategories = useCallback(() => {
-    setShowCategories(prev => !prev)
-  }, [])
+  // const toggleDropdownCategories = useCallback(() => {
+  //   setShowCategories(prev => !prev)
+  // }, [])
 
-  const toggleDropdownResets = useCallback(() => {
-    setShowResets(prev => !prev)
-  }, [])
+  // const toggleDropdownResets = useCallback(() => {
+  //   setShowResets(prev => !prev)
+  // }, [])
 
-  const handleDropdownCloseOutside = useCallback((event: MouseEvent) => {
-    if (dropdownCategoryRef.current && !dropdownCategoryRef.current.contains(event.target as Node)) {
-      setShowCategories(false)
-    }
-    if (dropdownResetRef.current && !dropdownResetRef.current.contains(event.target as Node)) {
-      setShowResets(false)
-    }
-  }, [])
+  // const handleDropdownCloseOutside = useCallback((event: MouseEvent) => {
+  //   if (dropdownCategoryRef.current && !dropdownCategoryRef.current.contains(event.target as Node)) {
+  //     setShowCategories(false)
+  //   }
+  //   if (dropdownResetRef.current && !dropdownResetRef.current.contains(event.target as Node)) {
+  //     setShowResets(false)
+  //   }
+  // }, [])
   
-  useEffect(() => {
-    document.addEventListener('mousedown', handleDropdownCloseOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleDropdownCloseOutside)
-    }
-  }, [handleDropdownCloseOutside])
+  // useEffect(() => {
+  //   document.addEventListener('mousedown', handleDropdownCloseOutside)
+  //   return () => {
+  //     document.removeEventListener('mousedown', handleDropdownCloseOutside)
+  //   }
+  // }, [handleDropdownCloseOutside])
 
-  const handleDropdownSelect = (category: string) => {
-    setSelectedCategory(category)
+  // const handleDropdownSelect = (category: string) => {
+  //   setSelectedCategory(category)
 
-    const storedData = localStorage.getItem(storage)
-    const chatData = storedData ? JSON.parse(storedData) : {}
+  //   const storedData = localStorage.getItem(storage)
+  //   const chatData = storedData ? JSON.parse(storedData) : {}
 
-    chatData.selectedCategory = category
-    localStorage.setItem(storage, JSON.stringify(chatData))
+  //   chatData.selectedCategory = category
+  //   localStorage.setItem(storage, JSON.stringify(chatData))
 
-    setShowCategories(false)
-    setTimeout(() => scrollToBottom(), 10)
-  }
+  //   setShowCategories(false)
+  //   setTimeout(() => scrollToBottom(), 10)
+  // }
 
-  const handleInput = (e: Event) => {
-    const target = e.target as HTMLTextAreaElement
-    setMessage(target.value)
+  // const handleInput = (e: Event) => {
+  //   const target = e.target as HTMLTextAreaElement
+  //   setMessage(target.value)
 
-    target.style.height = 'auto'
-    const lineHeight = parseFloat(getComputedStyle(target).lineHeight || '1.5rem')
-    const maxHeight = lineHeight * 3 + 2 * 12
+  //   target.style.height = 'auto'
+  //   const lineHeight = parseFloat(getComputedStyle(target).lineHeight || '1.5rem')
+  //   const maxHeight = lineHeight * 3 + 2 * 12
 
-    target.style.height = `${Math.min(target.scrollHeight, maxHeight) + 2}px`
-    target.scrollTop = target.scrollHeight
-  }
+  //   target.style.height = `${Math.min(target.scrollHeight, maxHeight) + 2}px`
+  //   target.scrollTop = target.scrollHeight
+  // }
 
-  const handleKeyDown = (e: KeyboardEvent) => {
-    const target = e.target as HTMLTextAreaElement
+  // const handleKeyDown = (e: KeyboardEvent) => {
+  //   const target = e.target as HTMLTextAreaElement
 
-    if (e.key === 'Enter') {
-      if (e.metaKey || e.ctrlKey || e.shiftKey) {
-        e.preventDefault()
-        setMessage((prev) => prev + '\n')
+  //   if (e.key === 'Enter') {
+  //     if (e.metaKey || e.ctrlKey || e.shiftKey) {
+  //       e.preventDefault()
+  //       setMessage((prev) => prev + '\n')
 
-        setTimeout(() => {
-          target.style.height = 'auto'
-          const lineHeight = parseFloat(getComputedStyle(target).lineHeight || '1.5rem')
-          const maxHeight = lineHeight * 3 + 2 * 12
-          target.style.height = `${Math.min(target.scrollHeight, maxHeight) + 2}px`
-          target.scrollTop = target.scrollHeight
-        }, 0)
-      } else {
-        e.preventDefault()
-        handleSubmit(e)
-      }
-    }
-  }
+  //       setTimeout(() => {
+  //         target.style.height = 'auto'
+  //         const lineHeight = parseFloat(getComputedStyle(target).lineHeight || '1.5rem')
+  //         const maxHeight = lineHeight * 3 + 2 * 12
+  //         target.style.height = `${Math.min(target.scrollHeight, maxHeight) + 2}px`
+  //         target.scrollTop = target.scrollHeight
+  //       }, 0)
+  //     } else {
+  //       e.preventDefault()
+  //       handleSubmit(e)
+  //     }
+  //   }
+  // }
 
-  const handleResetChat = () => {
-    if (selectedCategory !== defaultCategory) {
-      const storedData = localStorage.getItem(storage)
-      const chatData = storedData ? JSON.parse(storedData) : {}
-      delete chatData[selectedCategory]
-      localStorage.setItem(storage, JSON.stringify(chatData))
-    }
+  // const handleResetChat = () => {
+  //   if (selectedCategory !== defaultCategory) {
+  //     const storedData = localStorage.getItem(storage)
+  //     const chatData = storedData ? JSON.parse(storedData) : {}
+  //     delete chatData[selectedCategory]
+  //     localStorage.setItem(storage, JSON.stringify(chatData))
+  //   }
 
-    setChatHistory([])
-    setPopupReset(false)
-  }
+  //   setChatHistory([])
+  //   setPopupReset(false)
+  // }
 
-  const handleEmptyChat = () => {
-    localStorage.removeItem(storage)
-    setSelectedCategory(defaultCategory)
-    setChatHistory([])
-    setPopupResetAll(false)
-  }
+  // const handleEmptyChat = () => {
+  //   localStorage.removeItem(storage)
+  //   setSelectedCategory(defaultCategory)
+  //   setChatHistory([])
+  //   setPopupResetAll(false)
+  // }
 
-  const handleSubmit = async (e: Event) => {
-    e.preventDefault()
-    if (!message.trim()) return
+  // const handleSubmit = async (e: Event) => {
+  //   e.preventDefault()
+  //   if (!message.trim()) return
 
-    setLoadingSubmit(true)
-    setMessage('')
+  //   setLoadingSubmit(true)
+  //   setMessage('')
 
-    if (messageRef.current) {
-      messageRef.current.style.height = 'auto'
-    }
+  //   if (messageRef.current) {
+  //     messageRef.current.style.height = 'auto'
+  //   }
 
-    setTimeout(() => scrollToBottom(), 500)
+  //   setTimeout(() => scrollToBottom(), 500)
 
-    try {
-      const newMessage = { role: 'user', content: message }
+  //   try {
+  //     const newMessage = { role: 'user', content: message }
 
-      const sentMessage = [...chatHistory, newMessage]
-      setChatHistory(sentMessage)
+  //     const sentMessage = [...chatHistory, newMessage]
+  //     setChatHistory(sentMessage)
 
-      let attempt = 0
-      let success = false
-      let result: any
+  //     let attempt = 0
+  //     let success = false
+  //     let result: any
 
-      while (attempt < models.length && !success) {
-        try {
-          result = await chatWithAi({
-            model: models[attempt],
-            message: { messages: sentMessage },
-          })
+  //     while (attempt < models.length && !success) {
+  //       try {
+  //         result = await chatWithAi({
+  //           model: models[attempt],
+  //           message: { messages: sentMessage },
+  //         })
 
-          setChatHistory(result.data.history)
+  //         setChatHistory(result.data.history)
 
-          if (selectedCategory !== defaultCategory && selectedCategory !== generalCategory) {
-            const storedData = localStorage.getItem(storage)
-            const chatData = storedData ? JSON.parse(storedData) : {}
-            chatData[selectedCategory] = result.data.history
-            localStorage.setItem(storage, JSON.stringify(chatData))
-          }
+  //         if (selectedCategory !== defaultCategory && selectedCategory !== generalCategory) {
+  //           const storedData = localStorage.getItem(storage)
+  //           const chatData = storedData ? JSON.parse(storedData) : {}
+  //           chatData[selectedCategory] = result.data.history
+  //           localStorage.setItem(storage, JSON.stringify(chatData))
+  //         }
 
-          success = true
-        } catch (error: any) {
-          console.error(`Gagal menggunakan model ${models[attempt]}: ${error.message || 'Tidak diketahui'}`)
-          attempt++
-        }
-      }
+  //         success = true
+  //       } catch (error: any) {
+  //         console.error(`Gagal menggunakan model ${models[attempt]}: ${error.message || 'Tidak diketahui'}`)
+  //         attempt++
+  //       }
+  //     }
 
-      if (!success) {
-        setChatHistory([
-          ...sentMessage,
-          { role: 'assistant', content: 'Maaf, terjadi kesalahan. Silakan coba lagi nanti.' },
-        ]);
-      }
-    } catch (error: any) {
-      const errorMessage = `Terjadi kesalahan: ${error.message || 'Tidak diketahui'}`
-      alert(errorMessage)
-      console.error(errorMessage)
-    } finally {
-      setLoadingSubmit(false)
-    }
-  }
+  //     if (!success) {
+  //       setChatHistory([
+  //         ...sentMessage,
+  //         { role: 'assistant', content: 'Maaf, terjadi kesalahan. Silakan coba lagi nanti.' },
+  //       ]);
+  //     }
+  //   } catch (error: any) {
+  //     const errorMessage = `Terjadi kesalahan: ${error.message || 'Tidak diketahui'}`
+  //     alert(errorMessage)
+  //     console.error(errorMessage)
+  //   } finally {
+  //     setLoadingSubmit(false)
+  //   }
+  // }
 
-  useEffect(() => {
-    const storedData = localStorage.getItem(storage)
-    if (storedData) {
-      const parsedData = JSON.parse(storedData)
-      setChatHistory(parsedData[selectedCategory] || [])
-    } else {
-      setChatHistory([])
-    }
-  }, [selectedCategory])
+  // useEffect(() => {
+  //   const storedData = localStorage.getItem(storage)
+  //   if (storedData) {
+  //     const parsedData = JSON.parse(storedData)
+  //     setChatHistory(parsedData[selectedCategory] || [])
+  //   } else {
+  //     setChatHistory([])
+  //   }
+  // }, [selectedCategory])
 
-  useEffect(() => {
-    setTimeout(() => scrollToBottom(), 10)
-  },[])
+  // useEffect(() => {
+  //   setTimeout(() => scrollToBottom(), 10)
+  // },[])
 
   return (
     <div class="flex justify-center items-center min-h-screen p-6 main-layout">
@@ -234,7 +234,7 @@ const ChatBot = () => {
           </Popover>
         </div>
 
-        <div>
+        {/* <div>
           <div class="prose dark:prose-invert pb-16">
             {chatHistory.map((chat, index) => (
               <div key={index} class={chat.role === "user" ? "pl-6 md:pl-10 lg:pl-20" : ""}>
@@ -405,7 +405,11 @@ const ChatBot = () => {
               </div>
             </div>
           </div>
-        }
+        } */}
+
+        <div class="text-center text-sm italic text-slate-400 dark:text-slate-600 max-w-sm mx-auto mb-10">
+          Maaf, saat ini layanan tidak bisa digunakan karena sedang dilakukan pemeliharaan sistem.
+        </div>
 
         <Built />
       </section>
